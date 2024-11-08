@@ -12,4 +12,5 @@ export const selectors = {
 export const environment = {
   LINKEDIN_EMAIL: process.env.LINKEDIN_EMAIL,
   LINKEDIN_PASSWORD: process.env.LINKEDIN_PASSWORD,
+  dev: process.env.NODE_ENV === 'development',
 };

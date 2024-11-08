@@ -1,16 +1,23 @@
 import fs from 'fs/promises';
+import logger from '../logger.js';
 
 /**
- * Downloads an image from a given URL and saves it to the specified file.
+ * Downloads an image from a specified URL and writes it to a file.
  *
+ * @async
+ * @function writeImageFromUrl
  * @param {string} url - The URL of the image to download.
- * @param {string} filename - The path and filename where the image will be saved.
- * @returns {Promise<void>} A promise that resolves when the image is successfully written.
- *
- * @throws {Error} Will throw an error if the fetch or file write operations fail.
+ * @param {string} filename - The local file path to save the image to.
+ * @returns {Promise<void>} Returns `null` if an error occurs, otherwise resolves to `void`.
  */
 export async function writeImageFromUrl(url, filename) {
-  const res = await fetch(url, { method: 'GET' });
-  const arrayBuffer = await res.arrayBuffer();
-  await fs.writeFile(filename, Buffer.from(arrayBuffer));
+  try {
+    const res = await fetch(url, { method: 'GET' });
+    const arrayBuffer = await res.arrayBuffer();
+    await fs.writeFile(filename, Buffer.from(arrayBuffer));
+  } catch (error) {
+    logger.error(
+      `Error writing avatar ${url} to the file ${filename}: ${error}`,
+    );
+  }
 }
