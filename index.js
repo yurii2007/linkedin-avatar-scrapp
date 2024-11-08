@@ -2,10 +2,16 @@ import progressBar from 'cli-progress';
 import puppeteer from 'puppeteer-extra';
 import RecaptchaPlugin from 'puppeteer-extra-plugin-recaptcha';
 import { LINKEDIN_LOGIN_URL, environment, selectors } from './config.js';
-import { getImageSrc, writeImageFromUrl } from './utils/index.js';
+import {
+  getImageSrc,
+  writeImageFromUrl,
+  getFilenameArg,
+} from './utils/index.js';
 import logger from './logger.js';
 
-const filename = 'test_image.webp';
+const NAVIGATION_TIMEOUT = 60000;
+
+const filename = getFilenameArg();
 
 puppeteer.use(
   RecaptchaPlugin({
@@ -50,7 +56,10 @@ const loadingBar = new progressBar.SingleBar({});
       loadingBar.increment(30);
       logger.debug('Attempting to submit login form');
       await page.click(selectors.SIGNIN_FORM_BTN);
-      await page.waitForNavigation({ waitUntil: 'load' });
+      await page.waitForNavigation({
+        waitUntil: 'load',
+        timeout: NAVIGATION_TIMEOUT,
+      });
 
       loadingBar.increment(40);
       logger.info('Login successful, navigating to profile page');
@@ -63,7 +72,7 @@ const loadingBar = new progressBar.SingleBar({});
       const imageLink = await page.evaluate(getImageSrc, selectors.AVATAR);
       logger.debug(`Profile image URL extracted: ${imageLink}`);
 
-      await writeImageFromUrl(imageLink, 'test_img.webp');
+      await writeImageFromUrl(imageLink, filename);
       logger.info(`Profile image successfully downloaded as ${filename}`);
     } catch (error) {
       logger.error(
