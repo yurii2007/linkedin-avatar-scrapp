@@ -5,6 +5,18 @@ import {
 import logger from '../logger.js';
 import { validateFilename } from './validateFilename.js';
 
+/**
+ * Retrieves and validates the filename argument from the command line.
+ *
+ * @function getFilenameArg
+ * @returns {string} Returns a valid filename based on the input or a default value if the input is invalid.
+ *
+ * The filename argument undergoes several checks:
+ * - If no filename is provided, the default filename is used.
+ * - If the filename is invalid, the default filename is used.
+ * - If the filename has an unsupported image extension, the extension is replaced with `.webp`.
+ * - If the filename has no extension, `.webp` is appended.
+ */
 export function getFilenameArg() {
   try {
     const filename = process.argv[2];

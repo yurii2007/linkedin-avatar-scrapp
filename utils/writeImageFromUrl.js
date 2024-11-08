@@ -12,12 +12,22 @@ import logger from '../logger.js';
  */
 export async function writeImageFromUrl(url, filename) {
   try {
-    const res = await fetch(url, { method: 'GET' });
-    const arrayBuffer = await res.arrayBuffer();
-    await fs.writeFile(filename, Buffer.from(arrayBuffer));
+    if (isBase64(url)) {
+      const buffer = Buffer.from(url, 'base64');
+      await fs.writeFile(filename, buffer);
+    } else {
+      const res = await fetch(url, { method: 'GET' });
+      const arrayBuffer = await res.arrayBuffer();
+      await fs.writeFile(filename, Buffer.from(arrayBuffer));
+    }
   } catch (error) {
     logger.error(
       `Error writing avatar ${url} to the file ${filename}: ${error}`,
     );
   }
+}
+
+function isBase64(text) {
+  const utf8 = Buffer.from(text).toString('utf8');
+  return !/[^\x00-\x7f]/.test(utf8);
 }
