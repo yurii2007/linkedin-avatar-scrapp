@@ -1,10 +1,20 @@
 import progressBar from 'cli-progress';
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-extra';
+import RecaptchaPlugin from 'puppeteer-extra-plugin-recaptcha';
 import { LINKEDIN_LOGIN_URL, environment, selectors } from './config.js';
 import { getImageSrc, writeImageFromUrl } from './utils/index.js';
 import logger from './logger.js';
 
 const filename = 'test_image.webp';
+
+puppeteer.use(
+  RecaptchaPlugin({
+    provider: {
+      id: '2captcha',
+      token: environment.CAPTCHA_TOKEN,
+    },
+  }),
+);
 
 const loadingBar = new progressBar.SingleBar({});
 
@@ -28,6 +38,13 @@ const loadingBar = new progressBar.SingleBar({});
 
     await page.type(selectors.EMAIL_INPUT, environment.LINKEDIN_EMAIL);
     await page.type(selectors.PASSWORD_INPUT, environment.LINKEDIN_PASSWORD);
+
+    const { error } = await page.solveRecaptchas();
+
+    if (error) {
+      logger.error(`Error trying solve captcha: ${error}`);
+      process.exit(1);
+    }
 
     try {
       loadingBar.increment(30);
